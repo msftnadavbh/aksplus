@@ -1,10 +1,10 @@
 ---
 page_type: sample
 languages:
-- csharp
+- terraform
 products:
-- dotnet
-description: "Add 150 character max description"
+- Azure kubernetes service
+description: "aksplus contains terraform deployment scripts focus on using Azure kubernetes services with other Azure services to provide a quick POC environment"
 urlFragment: "update-this-to-unique-url-stub"
 ---
 
