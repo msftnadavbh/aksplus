@@ -28,13 +28,88 @@ output "kube_admin_config" {
 
 # AKS Azure active directory role based access control
 resource "local_file" "aad_rbac" {
+  count = var.enable_aad_rbac ? 1 : 0
   content  = <<EOF
-enable_aad_rbac = ${local.enable_aad_rbac ? true : false}
-appdev_object_id = "${local.enable_aad_rbac ? var.appdev_object_id :""}"
-opssre_object_id = "${local.enable_aad_rbac ? var.opssre_object_id :""}"
-admins_object_id = "${local.enable_aad_rbac ? var.admins_object_id :""}"
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: dev-user-full-access
+  namespace: dev
+rules:
+- apiGroups: ["", "extensions", "apps"]
+  resources: ["*"]
+  verbs: ["*"]
+- apiGroups: ["batch"]
+  resources:
+  - jobs
+  - cronjobs
+  verbs: ["*"]
+
+---
+
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: dev-user-access
+  namespace: dev
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: dev-user-full-access
+subjects:
+- kind: Group
+  namespace: dev
+  name: ${var.appdev_object_id}
+
+---
+
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: sre-user-full-access
+  namespace: sre
+rules:
+- apiGroups: ["", "extensions", "apps"]
+  resources: ["*"]
+  verbs: ["*"]
+- apiGroups: ["batch"]
+  resources:
+  - jobs
+  - cronjobs
+  verbs: ["*"]
+
+---
+
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: sre-user-access
+  namespace: sre
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: sre-user-full-access
+subjects:
+- kind: Group
+  namespace: sre
+  name: ${var.opssre_object_id}
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user-access
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: ${var.admins_object_id}
 EOF
-  filename = pathexpand("../aksplus_kubernetes/aad_rbac.auto.tfvars")  
+  filename = pathexpand("../aksplus_kubernetes/aad_rbac/aad_rbac.yaml")  
 }
 
 # Application gateway ingress controller
