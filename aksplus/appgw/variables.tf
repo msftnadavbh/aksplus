@@ -38,7 +38,7 @@ variable "zones" {
 variable "waf_enabled" {
   description = "Set to true to enable WAF on Application Gateway."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "waf_configuration" {

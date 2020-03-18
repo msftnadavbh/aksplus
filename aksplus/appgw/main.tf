@@ -77,10 +77,10 @@ resource "azurerm_application_gateway" "appgw" {
   }
 
   backend_http_settings {
-    name            = local.http_setting_name
-    port            = 80
-    protocol        = "Http"
-    request_timeout = 20
+    name                  = local.http_setting_name
+    port                  = 80
+    protocol              = "Http"
+    request_timeout       = 20
     cookie_based_affinity = "Disabled"
   }
 
@@ -104,13 +104,16 @@ resource "azurerm_application_gateway" "appgw" {
     policy_name = var.ssl_policy_name
   }
 
-  waf_configuration {
-    enabled                  = var.waf_enabled
-    firewall_mode            = var.waf_configuration != null ? var.waf_configuration.firewall_mode : "Prevention"
-    rule_set_type            = var.waf_configuration != null ? var.waf_configuration.rule_set_type : "OWASP"
-    rule_set_version         = var.waf_configuration != null ? var.waf_configuration.rule_set_version : "3.0"
-    file_upload_limit_mb     = var.waf_configuration != null ? var.waf_configuration.file_upload_limit_mb : 100
-    max_request_body_size_kb = var.waf_configuration != null ? var.waf_configuration.max_request_body_size_kb : 128
+  dynamic "waf_configuration" {
+    for_each = var.waf_enabled ? list(1) : []
+    content {
+      enabled                  = var.waf_enabled
+      firewall_mode            = var.waf_configuration != null ? var.waf_configuration.firewall_mode : "Prevention"
+      rule_set_type            = var.waf_configuration != null ? var.waf_configuration.rule_set_type : "OWASP"
+      rule_set_version         = var.waf_configuration != null ? var.waf_configuration.rule_set_version : "3.0"
+      file_upload_limit_mb     = var.waf_configuration != null ? var.waf_configuration.file_upload_limit_mb : 100
+      max_request_body_size_kb = var.waf_configuration != null ? var.waf_configuration.max_request_body_size_kb : 128
+    }
   }
 
   dynamic "custom_error_configuration" {
