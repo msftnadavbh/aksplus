@@ -1,9 +1,10 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: aspnetapp
+  name: sreapp
+  namespace: sre
   labels:
-    app: aspnetapp
+    app: sreapp
 spec:
   containers:
   - image: "mcr.microsoft.com/dotnet/core/samples:aspnetapp"
@@ -17,10 +18,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: aspnetapp
+  name: sreapp
+  namespace: sre
 spec:
   selector:
-    app: aspnetapp
+    app: sreapp
   ports:
   - protocol: TCP
     port: 80
@@ -31,21 +33,21 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: aspnetapp
+  name: sreapp
+  namespace: sre
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-staging
-    cert-manager.io/acme-challenge-type: http01  
     kubernetes.io/ingress.class: azure/application-gateway
+    cert-manager.io/issuer: letsencrypt-staging
 spec:
   rules:
-  - host: aspnetapp.k8s.azcloud.top  
+  - host: sreapp.k8s.azcloud.top  
     http:
       paths:
       - path: /
         backend:
-          serviceName: aspnetapp
-          servicePort: 80
+          serviceName: sreapp
+          servicePort: 80          
   tls:
   - hosts:
-    - aspnetapp.k8s.azcloud.top
-    secretName: aspnetapp-k8s-tls             
+    - sreapp.k8s.azcloud.top
+    secretName: sreapp-tls             

@@ -2,7 +2,7 @@ apiVersion: cert-manager.io/v1alpha2
 kind: Issuer
 metadata:
   name: letsencrypt-staging
-  namespace: sre
+  namespace: dev
 spec:
   acme:
 
@@ -27,15 +27,14 @@ spec:
     solvers:
     - http01:
         ingress:
-            class: azure/application-gateway
-
+            class: nginx
 ---
 
 apiVersion: cert-manager.io/v1alpha2
 kind: Issuer
 metadata:
   name: letsencrypt-prod
-  namespace: sre
+  namespace: dev
 spec:
   acme:
 
@@ -60,4 +59,4 @@ spec:
     solvers:
     - http01:
         ingress:
-            class: azure/application-gateway
+            class: nginx			

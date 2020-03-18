@@ -16,6 +16,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     node_count          = var.node_count
     vm_size             = var.vm_size
     vnet_subnet_id      = var.subnet_id
+    max_pods            = 110
   }
   dns_prefix = var.dns_prefix
   service_principal {
@@ -73,19 +74,11 @@ resource "azurerm_kubernetes_cluster" "aks" {
     admin_username = var.admin_username
     admin_password = var.admin_password
   }
-
   /*
-  dynamic "windows_profile" {
-    for_each = (var.enable_windows) ? list(1) : []
-    content {
-      admin_username = var.admin_username
-      admin_password = var.admin_password
-    }
-  }
-  */
   tags = {
     Environment = "aksplus"
   }
+  */
 }
 
 resource "azurerm_kubernetes_cluster_node_pool" "gpu" {
