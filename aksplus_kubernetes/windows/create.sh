@@ -1,0 +1,1 @@
+kubectl apply -f windows_app.yaml

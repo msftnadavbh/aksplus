@@ -28,7 +28,7 @@ output "kube_admin_config" {
 
 # AKS Azure active directory role based access control
 resource "local_file" "aad_rbac" {
-  count = var.enable_aad_rbac ? 1 : 0
+  count    = var.enable_aad_rbac ? 1 : 0
   content  = <<EOF
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1beta1
@@ -109,7 +109,7 @@ subjects:
   kind: Group
   name: ${var.admins_object_id}
 EOF
-  filename = pathexpand("../aksplus_kubernetes/aad_rbac/aad_rbac.yaml")  
+  filename = pathexpand("../aksplus_kubernetes/aad_rbac/aad_rbac.yaml")
 }
 
 # Application gateway ingress controller
@@ -117,27 +117,31 @@ data "azurerm_subscription" "this" {
 }
 
 resource "local_file" "agic" {
+  count    = var.enable_appgw ? 1 : 0
   content  = <<EOF
-enable_agic = ${var.enable_appgw ? true : false}
-subscription_id = "${data.azurerm_subscription.this.subscription_id}"
-resource_group_name = "${azurerm_resource_group.aksplus.name}"
-identity_id = "${module.aksui.identity_id}"
-identity_client_id = "${module.aksui.identity_client_id}"
-application_gateway_name = "${var.business_unit}AGW"
-aks_fqdn = "${module.aks.fqdn}"
+verbosityLevel: 3
+appgw:
+  subscriptionId: ${data.azurerm_subscription.this.subscription_id}
+  resourceGroup: ${azurerm_resource_group.aksplus.name}
+  name: ${var.business_unit}AGW
+  usePrivateIP: false
+  shared: false
+kubernetes:
+  watchNamespace: sre
+armAuth:
+  type: aadPodIdentity
+  identityResourceID: ${module.aksui.identity_id}
+  identityClientID:  ${module.aksui.identity_client_id}
+rbac:
+  enabled: true
+aksClusterConfiguration:
+  apiServerAddress: ${module.aks.fqdn}
 EOF
-  filename = pathexpand("../aksplus_kubernetes/agic.auto.tfvars")
-}
-
-# External DNS
-resource "local_file" "dns" {
-  content  = <<EOF
-enable_dns = ${var.enable_dns ? true : false}
-EOF
-  filename = pathexpand("../aksplus_kubernetes/dns.auto.tfvars")
+  filename = pathexpand("../aksplus_kubernetes/agic/config.yaml")
 }
 
 resource "local_file" "dns_yaml" {
+  count    = var.enable_dns ? 1 : 0
   content  = <<EOF
 apiVersion: v1
 kind: ServiceAccount
@@ -213,6 +217,7 @@ data "azurerm_client_config" "this" {
 }
 
 resource "local_file" "dns_config" {
+  count    = var.enable_dns ? 1 : 0
   content  = <<EOF
 {
   "tenantId": "${data.azurerm_client_config.this.tenant_id}",
@@ -223,20 +228,4 @@ resource "local_file" "dns_config" {
 }
 EOF
   filename = pathexpand("../aksplus_kubernetes/dns/azure.json")
-}
-
-# GPU demo
-resource "local_file" "gpu" {
-  content  = <<EOF
-enable_gpu = ${var.enable_gpu ? true : false}
-EOF
-  filename = pathexpand("../aksplus_kubernetes/gpu.auto.tfvars")
-}
-
-# GPU demo
-resource "local_file" "windows" {
-  content  = <<EOF
-enable_windows = ${var.enable_windows ? true : false}
-EOF
-  filename = pathexpand("../aksplus_kubernetes/windows.auto.tfvars")
 }

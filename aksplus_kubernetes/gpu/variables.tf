@@ -1,3 +1,0 @@
-variable "enabled" {
-  default = false
-}
