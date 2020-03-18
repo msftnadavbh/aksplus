@@ -40,6 +40,7 @@ aksplus and aksplus_kubernetes
 To deploy, make sure below prerequisites software are installed in your system
 - terraform
 - kubectl
+- helm
 - az cli
 
 ## Deployment
@@ -51,9 +52,9 @@ To deploy, make sure below prerequisites software are installed in your system
 - Run "terraform apply", enter "Yes" if everything is acceptable
 
 ### Deploy kubernetes related workload
-- Once finished above steps, change directory to aksplus_kubernetes
-- Run "terraform init"
-- Run "terraform apply", enter "Yes" if everything is acceptable
+- Once finished above steps, change directory to aksplus_kubernetes, each sub folder contains related scripts to deploy, for example, agic sub folder contains script to deploy application gateway ingress controller
+- Run create.sh to deploy
+- Run delete.sh to delete the deployment from AKS
 
 ## Contributing
 
