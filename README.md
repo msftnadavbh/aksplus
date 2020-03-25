@@ -38,10 +38,10 @@ aksplus and aksplus_kubernetes
 ## Prerequisites
 
 To deploy, make sure below prerequisites software are installed in your system
-- terraform
-- kubectl
-- helm
-- az cli
+- terraform (> 0.12)
+- kubectl (> 1.15)
+- helm (> 3.01)
+- az cli (> 2.1)
 
 ## Deployment
 
